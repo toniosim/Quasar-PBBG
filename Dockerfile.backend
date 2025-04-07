@@ -1,0 +1,16 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the backend code
+COPY backend/ /app/backend/
+
+# Set the Python path
+ENV PYTHONPATH=/app
+
+# Run the application with Eventlet
+CMD ["python", "backend/app.py"]
