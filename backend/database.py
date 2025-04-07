@@ -78,12 +78,15 @@ def redis_hash_to_dict(hash_dict):
     result = {}
     for key, value in hash_dict.items():
         # Handle numeric fields
-        if key.endswith('_id') or key in ('id', 'x', 'y', 'health', 'max_health',
-                                          'stamina', 'max_stamina', 'ap', 'max_ap',
-                                          'money', 'experience', 'level'):
+        if (key.endswith('_id') and key != 'building_id' and key != 'id') or key in ('x', 'y', 'health', 'max_health',
+                                      'stamina', 'max_stamina', 'ap', 'max_ap',
+                                      'money', 'experience', 'level'):
             result[key] = int(value) if value else 0
+        # Handle UUID fields
+        elif key == 'id' or key == 'building_id':
+            result[key] = value  # Keep as string
         # Handle boolean fields
-        elif key in ('inside_building', 'has_building', 'is_active', 'is_admin'):
+        elif key in ('inside_building', 'has_buildings', 'is_active', 'is_admin'):
             result[key] = bool(int(value)) if value else False
         # Handle JSON strings
         elif value and (value.startswith('{') or value.startswith('[')):
