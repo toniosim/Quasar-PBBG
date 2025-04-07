@@ -1,4 +1,4 @@
-import edis
+import redis
 import json
 from datetime import datetime
 from flask import g
