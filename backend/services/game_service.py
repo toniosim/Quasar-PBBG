@@ -1,6 +1,6 @@
 import random
 from config import Config
-from database import redis_connection
+import database
 from models.world import (
     create_tile,
     create_building,
@@ -241,14 +241,14 @@ def reset_game_world():
         return False
 
     # Delete all world data
-    world_keys = redis_connection.keys('tile:*') + redis_connection.keys('building:*') + redis_connection.keys(
+    world_keys = database.redis_connection.keys('tile:*') + database.redis_connection.keys('building:*') + database.redis_connection.keys(
         'object:*')
 
     if world_keys:
-        redis_connection.delete(*world_keys)
+        database.redis_connection.delete(*world_keys)
 
     # Remove world initialized flag
-    redis_connection.delete('world:initialized')
+    database.redis_connection.delete('world:initialized')
 
     # Reinitialize world
     initialize_game_world()

@@ -3,16 +3,7 @@ from datetime import datetime
 import uuid
 import random
 
-from database import (
-    get_next_id,
-    save_entity,
-    get_entity,
-    redis_connection,
-    add_to_set,
-    redis_hash_to_dict,
-    dict_to_redis_hash,
-    get_set_members
-)
+import database
 from config import Config
 
 
@@ -116,10 +107,10 @@ def create_tile(x, y, data):
 
     # Save tile to Redis
     key = f"tile:{x}:{y}"
-    redis_connection.hmset(key, dict_to_redis_hash(tile.to_dict()))
+    database.redis_connection.hmset(key, database.redis_hash_to_dict(tile.to_dict()))
 
     # Add to world tiles set
-    add_to_set('world:tiles', f"{x}:{y}")
+    database.add_to_set('world:tiles', f"{x}:{y}")
 
     return True
 
@@ -127,13 +118,13 @@ def create_tile(x, y, data):
 def get_tile(x, y):
     """Get a tile by coordinates"""
     key = f"tile:{x}:{y}"
-    data = redis_connection.hgetall(key)
+    data = database.redis_connection.hgetall(key)
 
     if not data:
         return None
 
     # Convert from Redis hash
-    tile_data = redis_hash_to_dict(data)
+    tile_data = database.redis_hash_to_dict(data)
 
     return WorldTile(**tile_data)
 
@@ -153,7 +144,7 @@ def create_building(x, y, data):
 
     # Save building to Redis
     key = f"building:{building_id}"
-    redis_connection.hmset(key, dict_to_redis_hash(building.to_dict()))
+    database.redis_connection.hmset(key, database.redis_hash_to_dict(building.to_dict()))
 
     # Add building ID to tile's buildings list
     tile = get_tile(x, y)
@@ -163,7 +154,7 @@ def create_building(x, y, data):
             create_tile(x, y, {'buildings': tile.buildings})
 
     # Add to buildings set
-    add_to_set('world:buildings', building_id)
+    database.add_to_set('world:buildings', building_id)
 
     return building_id
 
@@ -171,13 +162,13 @@ def create_building(x, y, data):
 def get_building(building_id):
     """Get a building by ID"""
     key = f"building:{building_id}"
-    data = redis_connection.hgetall(key)
+    data = database.redis_connection.hgetall(key)
 
     if not data:
         return None
 
     # Convert from Redis hash
-    building_data = redis_hash_to_dict(data)
+    building_data = database.redis_hash_to_dict(data)
 
     return Building(**building_data)
 
@@ -197,10 +188,10 @@ def create_object(data):
 
     # Save object to Redis
     key = f"object:{object_id}"
-    redis_connection.hmset(key, dict_to_redis_hash(world_object.to_dict()))
+    database.redis_connection.hmset(key, database.redis_hash_to_dict(world_object.to_dict()))
 
     # Add to objects set
-    add_to_set('world:objects', object_id)
+    database.add_to_set('world:objects', object_id)
 
     return object_id
 
@@ -208,13 +199,13 @@ def create_object(data):
 def get_object(object_id):
     """Get a world object by ID"""
     key = f"object:{object_id}"
-    data = redis_connection.hgetall(key)
+    data = database.redis_connection.hgetall(key)
 
     if not data:
         return None
 
     # Convert from Redis hash
-    object_data = redis_hash_to_dict(data)
+    object_data = database.redis_hash_to_dict(data)
 
     return WorldObject(**object_data)
 
@@ -240,9 +231,9 @@ def add_object_to_building(building_id, object_id):
 
     if object_id not in building.objects:
         building.objects.append(object_id)
-        redis_connection.hmset(
+        database.redis_connection.hmset(
             f"building:{building_id}",
-            dict_to_redis_hash({'objects': building.objects})
+            database.redis_hash_to_dict({'objects': building.objects})
         )
 
     return True
@@ -337,9 +328,9 @@ def get_map_slice(center_x, center_y, radius=1):
 
 def check_world_initialized():
     """Check if the world has been initialized"""
-    return redis_connection.exists('world:initialized')
+    return database.redis_connection.exists('world:initialized')
 
 
 def mark_world_initialized():
     """Mark the world as initialized"""
-    redis_connection.set('world:initialized', '1')
+    database.redis_connection.set('world:initialized', '1')
