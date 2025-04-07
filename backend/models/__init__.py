@@ -1,21 +1,21 @@
-from database import database_exists, redis_connection
+import database
 import time
 
 
 def init_models():
     """Initialize all models and data structures"""
     # Check if database exists
-    if not database_exists():
+    if not database.database_exists():
         print("Database not initialized, setting up...")
 
         # Set up Redis data structures for IDs
-        redis_connection.set('id:users', '0')
-        redis_connection.set('id:characters', '0')
-        redis_connection.set('id:action_logs', '0')
-        redis_connection.set('id:inventory_items', '0')
+        database.redis_connection.set('id:users', '0')
+        database.redis_connection.set('id:characters', '0')
+        database.redis_connection.set('id:action_logs', '0')
+        database.redis_connection.set('id:inventory_items', '0')
 
         # Mark database as initialized
-        redis_connection.set('database:initialized', '1')
+        database.redis_connection.set('database:initialized', '1')
 
         print("Database initialization complete")
     else:
