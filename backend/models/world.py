@@ -107,7 +107,7 @@ def create_tile(x, y, data):
 
     # Save tile to Redis
     key = f"tile:{x}:{y}"
-    database.redis_connection.hmset(key, database.redis_hash_to_dict(tile.to_dict()))
+    database.redis_connection.hmset(key, database.dict_to_redis_hash(tile.to_dict()))
 
     # Add to world tiles set
     database.add_to_set('world:tiles', f"{x}:{y}")
@@ -144,7 +144,7 @@ def create_building(x, y, data):
 
     # Save building to Redis
     key = f"building:{building_id}"
-    database.redis_connection.hmset(key, database.redis_hash_to_dict(building.to_dict()))
+    database.redis_connection.hmset(key, database.dict_to_redis_hash(building.to_dict()))
 
     # Add building ID to tile's buildings list
     tile = get_tile(x, y)
@@ -188,7 +188,7 @@ def create_object(data):
 
     # Save object to Redis
     key = f"object:{object_id}"
-    database.redis_connection.hmset(key, database.redis_hash_to_dict(world_object.to_dict()))
+    database.redis_connection.hmset(key, database.dict_to_redis_hash(world_object.to_dict()))
 
     # Add to objects set
     database.add_to_set('world:objects', object_id)
@@ -233,7 +233,7 @@ def add_object_to_building(building_id, object_id):
         building.objects.append(object_id)
         database.redis_connection.hmset(
             f"building:{building_id}",
-            database.redis_hash_to_dict({'objects': building.objects})
+            database.dict_to_redis_hash({'objects': building.objects})
         )
 
     return True
