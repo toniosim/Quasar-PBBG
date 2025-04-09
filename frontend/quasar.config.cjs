@@ -1,8 +1,7 @@
-/* eslint-env node */
 const { configure } = require('@quasar/app-vite');
 const path = require('path');
 
-module.exports = configure(function () {
+module.exports = configure(function() {
   return {
     eslint: {
       fix: true,
